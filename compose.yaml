@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  nestjs:
+    build: ./back
+    ports:
+      - "4000:4000"
+      - "5555:5555"
+    depends_on:
+      - mysql
+    environment:
+      DATABASE_URL: mysql://root:123456@mysql:3306/atktest
+    volumes:
+      - ./back/public:/app/public 
+    networks:
+      - mynetwork
+  
+  mysql:
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: atktest
+    volumes:
+      - mysql-data:/data/mysql
+    networks:
+      - mynetwork
+
+  nextjs:
+    build: ./atk
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./atk:/app
+    depends_on:
+      - nestjs
+    networks:
+      - mynetwork
+
+volumes:
+  mysql-data:
+
+networks:
+  mynetwork:
